@@ -9,12 +9,12 @@ const Login = () => {
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
-        router.push("/welcome");
+        router.push("/");
       }
     });
 
     return () => unsubscribe();
-  }, []);
+  },);
 
   return (
     <>

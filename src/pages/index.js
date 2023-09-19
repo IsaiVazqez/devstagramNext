@@ -1,37 +1,56 @@
-import { useEffect } from 'react';
-import { useRouter } from 'next/router';
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { useEffect, useState, } from 'react';
 import {auth} from '../api/firabase';
+import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
+import { useRouter } from 'next/router'
+
 
 const Index = () => {
-  const router = useRouter();
+  const [user, setUser] = useState(null);
+  const router = useRouter()
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      if (user) {
-        // Si el usuario está autenticado, quédate en la página de inicio
-        // Aquí puedes usar 'user'
+
+    const auth = getAuth();
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (currentUser) {
+        setUser(currentUser);
       } else {
-        // Si el usuario no está autenticado, redirige a la página de inicio de sesión
         router.push('/login');
       }
     });
 
-    // Cancela la suscripción al salir
     return () => unsubscribe();
   }, []);
 
+  const logout = () => {
+    const auth = getAuth();
+    signOut(auth).then(() => {
+      // Sign-out successful.
+      router.push('/login');
+    }).catch((error) => {
+      // An error happened.
+      console.error("Error signing out:", error);
+    });
+  };
+
   return (
-    <div>
-      <h1>Página de inicio</h1>
-      {user && (
-        <div>
-          <h2>Bienvenido, {user.displayName}</h2>
-          <img src={user.photoURL} alt={user.displayName} />
-        </div>
-      )}
-    </div>
-  ); 
+    user ? (
+      <div className="flex flex-col items-center justify-center h-screen">
+        <h1 className="text-4xl mb-4">Bienvenido, {user.displayName}</h1>
+        <img className="rounded-full h-24 w-24 mb-4" src={user.photoURL} alt={`${user.displayName}'s profile picture`} />
+        <button 
+          onClick={logout}
+          className="bg-red-500 text-white px-6 py-2 rounded hover:bg-red-600"
+        >
+          Logout
+        </button>
+      </div>
+    ) : (
+      <div className="flex items-center justify-center h-screen">
+        <h1 className="text-4xl">Redirigiendo al inicio de sesión...</h1>
+      </div>
+    )
+  );
 };
 
 export default Index

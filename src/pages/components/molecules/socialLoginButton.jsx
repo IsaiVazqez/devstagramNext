@@ -1,43 +1,42 @@
 import AuthButton from "../atoms/authBottom";
-import { FacebookAuthProvider, signInWithPopup } from "firebase/auth";
+import { FacebookAuthProvider, signInWithPopup, GoogleAuthProvider, getAuth } from "firebase/auth";
 
 import firebase from "firebase/app";
 
 import { auth } from "../../../api/firabase";
 
-const provider = new FacebookAuthProvider();
-
-// Añadir permisos adicionales si es necesario
-provider.addScope('user_birthday');
-
-// Parámetros personalizados
-provider.setCustomParameters({
-  'display': 'popup'
-});
-
-
 
 const SocialLoginButtons = () => {
     const signInWithGoogle = () => {
-      const provider = new firebase.auth.GoogleAuthProvider();
-      auth.signInWithPopup(provider);
+      const auth = getAuth();
+      const provider = new GoogleAuthProvider();
+    
+      signInWithPopup(auth, provider)
+        .then((result) => {
+          const user = result.user;
+          console.log('Usuario autenticado:', user);
+        })
+        .catch((error) => {
+          console.error('Ocurrió un error durante la autenticación', error);
+        });
     };
   
     const signInWithFacebook = () => {
+
+      const auth = getAuth();
+      const provider = new FacebookAuthProvider();
+      provider.addScope('email');
+      provider.addScope('user_birthday');
+      
         signInWithPopup(auth, provider)
           .then((result) => {
-            // La información del usuario que ha iniciado sesión
             const user = result.user;
-      
-            // Esto te proporciona un token de acceso de Facebook.
             const credential = FacebookAuthProvider.credentialFromResult(result);
-            const accessToken = credential.accessToken;
-      
+            const accessToken = credential.accessToken;      
             console.log("Usuario: ", user);
             console.log("Token de acceso: ", accessToken);
           })
           .catch((error) => {
-            // Manejar errores aquí
             const errorCode = error.code;
             const errorMessage = error.message;
             console.log("Código de error: ", errorCode);

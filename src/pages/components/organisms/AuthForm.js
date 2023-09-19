@@ -1,4 +1,4 @@
-import SocialLoginButtons from "../molecules/socialLoginButton";
+import SocialLoginButtons from "../molecules/socialLoginButton.jsx";
 import Image from "next/image";
 import logo from "public/logosocial.png"
 
